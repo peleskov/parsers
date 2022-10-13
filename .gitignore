@@ -2,7 +2,6 @@ TZ.txt
 /_sites/
 .gitignore
 *.zip
-*.exe
 *.xml
 *.xlsx
 *.iml
