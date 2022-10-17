@@ -36,7 +36,7 @@ def get_items():
 
     # Скроем окно браузера
     options = Options()
-    # options.add_argument('headless')
+    options.add_argument('headless')
     with webdriver.Chrome(service=service, options=options) as driver:
         driver.maximize_window()
 
