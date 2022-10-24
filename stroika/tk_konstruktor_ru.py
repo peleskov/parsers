@@ -146,7 +146,6 @@ def get_data(driver, items) -> list:
             ))
         except Exception as ex:
             continue
-    print()
     return items_list
 
 
