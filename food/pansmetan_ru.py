@@ -14,9 +14,9 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'troekurov.ru',
-    'host': 'https://troekurov.ru/',
-    'target_url': 'https://troekurov.ru/catalog/holodnyie-zakuski',
+    'name': 'pansmetan.ru',
+    'host': 'https://pansmetan.ru/',
+    'target_url': 'https://pansmetan.ru/catalog/goryachie-blyuda/',
     'qty_items': 5,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
@@ -43,7 +43,7 @@ def get_items():
         try:
             # Проверим доступен ли сайт
             driver.get(IN_DATA['host'])
-            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.ID, 'main-slider-section'))
+            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.ID, 'header'))
             print('Сайт доступен продолжаем...')
         except Exception as ex:
             print('Сайт не доступен останавливаемся!')
@@ -68,6 +68,7 @@ def get_items():
         page_n = 1
         driver.get(url)
         items_list = driver.find_elements(By.CLASS_NAME, 'solo-product')
+        print()
         # Соберем данные
         results = get_data(items_list)
         if len(results) > 0:
@@ -80,6 +81,8 @@ def get_items():
 
 def get_data(items) -> list:
     items_list = []
+    print()
+
     for item in items[:IN_DATA['qty_items']]:
         try:
             # получаем каждую старницу и собираем данные
@@ -102,6 +105,7 @@ def get_data(items) -> list:
             images_urls = [f'{IN_DATA["host"]}{img}']
             item_images_arr = []
             k = 0
+            print()
             for item_image_url in set(images_urls):
                 k += 1
                 item_image_ext = os.path.splitext(os.path.basename(item_image_url))[1].split('?')[0][1:]
@@ -135,8 +139,6 @@ def get_data(items) -> list:
             continue
         time.sleep(random.randint(1, 5))
     return items_list
-
-
 
 
 if __name__ == '__main__':
