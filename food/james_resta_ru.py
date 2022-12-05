@@ -14,9 +14,9 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'pansmetan.ru',
-    'host': 'https://pansmetan.ru/',
-    'target_url': 'https://pansmetan.ru/catalog/goryachie-blyuda/',
+    'name': 'james-resta.ru',
+    'host': 'https://james-resta.ru/',
+    'target_url': 'https://james-resta.ru/catalog/tortyi-na-zakaz',
     'qty_items': 5,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
