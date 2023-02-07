@@ -22,7 +22,7 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'kns.ru',
     'host': 'https://www.kns.ru',
-    'target_url': 'https://www.kns.ru/catalog/noutbuki/',
+    'target_url': 'https://www.kns.ru/catalog/televizory/',
     'image_url': '/www/u1165452/data/www/forta.market/images/thumbnails',
     'category_path': f'Доставка еды///Сыроварня///Красота и здоровье///ДУХИ.РФ',
     'qty_items': 31
