@@ -16,8 +16,8 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'zarina.ru',
     'host': 'https://zarina.ru/',
-    'target_url': 'https://zarina.ru/catalog/clothes/',
-    'qty_items': 1,
+    'target_url': 'https://zarina.ru/man/accessories/',
+    'qty_items': 10000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -94,6 +94,7 @@ def get_data(driver, items) -> list:
             item_title = driver.find_element(By.XPATH, '//h1[@class="product__title"]').text
             item_brand = IN_DATA['name']
             item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content')
+            item_price = round(int(item_price)/100)*100
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
             sizes = driver.find_elements(By.XPATH, '//div[@class="size-title"]')
             sizes_list = []

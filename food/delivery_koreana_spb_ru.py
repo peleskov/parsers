@@ -1,4 +1,4 @@
-import csv
+delivery_koreana_spb_ru.pyimport csv
 import hashlib
 import os
 import random

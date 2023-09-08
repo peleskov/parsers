@@ -16,12 +16,12 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'tk_konstruktor.ru',
     'host': 'https://tk-konstruktor.ru/',
-    'target_url': 'https://tk-konstruktor.ru/catalog/otdelochnye-materialy/plitka/plitka-keramicheskaya/',
-    'qty_items': 1,
+    'target_url': 'https://tk-konstruktor.ru/catalog/dekor-dlya-doma/kovry/kovry-dlya-doma/filter/country-is-%D1%82%D1%83%D1%80%D1%86%D0%B8%D1%8F/apply/',
+    'qty_items': 200,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
-PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
+PATH_IMAGES = os.path.join(PATH_ROOT, 'imgs')
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -99,18 +99,15 @@ def get_data(driver, items) -> list:
             driver.get(item[0])
             WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'page-wrapper'))
             item_title = driver.find_element(By.TAG_NAME, 'h1').text
-            item_brand = driver.find_element(By.XPATH, '//meta[@itemprop="brand"]').get_attribute('content')
-            if not item_brand:
-                item_brand = IN_DATA['name']
+            item_brand = 'MİR BRODE'
             item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content')
             item_price = re.sub(r"[^\d\.]", "", item_price)
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
             item_sizes = ''
-            item_desc = driver.find_element(By.XPATH, '//div[@itemprop="description"]').get_attribute('innerHTML') \
+            item_desc = driver.find_element(By.XPATH, '//div[@data-value="properties"]').get_attribute('innerHTML') \
                 .replace('\r', '').replace('\n', '')
             if not item_desc:
                 item_desc = ''
-
             images = driver.find_elements(By.XPATH, '//div[contains(@class, "product-item-detail-slider-image")]/img')
             k = 0
             images_urls = []

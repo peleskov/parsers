@@ -4,7 +4,6 @@ import os
 import random
 import time
 import requests
-import json
 import re
 from lxml import html
 from selenium import webdriver
@@ -15,14 +14,14 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'asos.com',
-    'host': 'https://www.asos.com/',
-    'target_url': 'https://www.asos.com/men/a-to-z-of-brands/diesel/cat/?cid=2592',
-    'qty_items': 1000,
+    'name': 'varibasi.ru',
+    'host': 'https://www.varibasi.ru/',
+    'target_url': 'https://www.varibasi.ru/menu/rolly/',
+    'qty_items': 10,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
-PATH_IMAGES = os.path.join(PATH_ROOT, 'imgs')
+PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -37,14 +36,14 @@ def get_items():
 
     # Скроем окно браузера
     options = Options()
-    # options.add_argument('headless')
+    options.add_argument('headless')
     with webdriver.Chrome(service=service, options=options) as driver:
-        driver.maximize_window()
+        # driver.maximize_window()
 
         try:
             # Проверим доступен ли сайт
             driver.get(IN_DATA['host'])
-            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.ID, 'chrome-app-container'))
+            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CLASS_NAME, 'slider'))
             print('Сайт доступен продолжаем...')
         except Exception as ex:
             print('Сайт не доступен останавливаемся!')
@@ -68,20 +67,13 @@ def get_items():
         url = IN_DATA['target_url']
         page_n = 1
         driver.get(url)
-        next_page_btn = True
-        while len(items_list) < IN_DATA['qty_items'] and url and next_page_btn:
+        while len(items_list) < IN_DATA['qty_items'] and url:
             page_n += 1
             data = get_links(driver, url, page_n)
             if data['items']:
                 items_list.extend(data['items'])
             url = data['target_url']
-            try:
-                WebDriverWait(driver, 10).until(lambda d: d.find_element(By.XPATH, '//a[@data-auto-id="loadMoreProducts"]'))
-                next_page_btn = True
-            except exceptions.TimeoutException:
-                next_page_btn = False
             time.sleep(random.randint(1, 5))
-        print(f'Собрано {len(items_list)} ссылок на товары')
         # Соберем данные
         results = get_data(driver, items_list)
         if len(results) > 0:
@@ -89,7 +81,6 @@ def get_items():
             with open(path_results, 'a', newline="", encoding='UTF8') as f:
                 writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
                 writer.writerows(results)
-        print('Собраны данные по товарам, конец!')
     return True
 
 
@@ -98,32 +89,28 @@ def get_data(driver, items) -> list:
     for item in items[:IN_DATA['qty_items']]:
         try:
             # получаем каждую старницу и собираем данные
-            # 'id;Title;Brand;Price;Sizes;Description;Images\n'
+            # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
             driver.get(item[0])
-            WebDriverWait(driver, 60).until(lambda d: d.find_element(By.CLASS_NAME, 'gallery-images'))
-            item_title = driver.find_element(By.TAG_NAME, 'h1').text
-            item_info = json.loads(driver.find_element(By.XPATH, '//script[@id="split-structured-data"]').get_attribute('innerHTML'))
-            item_brand = item_info['brand']['name']
-            # //div[@data-testid="product-price"]//span[@data-testid="current-price"]
-            if 'lowPrice' in item_info['offers']:
-                item_price = (item_info['offers']['lowPrice'] if item_info['offers']['lowPrice'] > 0 else item_info['offers']['highPrice']) * 85
-            else:
-                item_price = float(re.sub(r"[^\d\.]", "", driver.find_element(By.XPATH, '//div[@data-testid="product-price"]//span[@data-testid="current-price"]').get_attribute('innerHTML'))) * 85
+            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'content_section'))
+            item_title = driver.find_element(By.XPATH, '//h2[@itemprop="name"]').text
+            # item_brand = driver.find_element(By.XPATH, '//meta[@itemprop="brand"]').get_attribute('content')
+            item_brand = IN_DATA['name']
+            item_price = driver.find_element(By.XPATH, '//div[@itemprop="price"]').text
+            item_price = re.sub(r"[^\d\.]", "", item_price)
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
-            sizes = driver.find_elements(By.XPATH, '//select[@data-id="sizeSelect"]//option')
-            sizes_list = []
-            for size in sizes[1:]:
-                sizes_list.append(size.get_attribute('innerHTML').replace(' - Out of stock', ''))
-            item_sizes = '||'.join(sizes_list) 
-            item_desc = driver.find_element(By.XPATH, '//div[@id="productDescriptionDetails"]/div/div').get_attribute('innerHTML').replace('\r', '').replace('\n', '')
-            item_desc = re.sub(r'<a\s.*?>', '', item_desc).replace('</a>', '')
-            images = driver.find_elements(By.XPATH, '//ul[@class="thumbnails"]//img[@class="gallery-image"]')
+            item_sizes = ''
+            item_desc = driver.find_element(By.XPATH, '//div[@itemprop="description"]').get_attribute('innerHTML') \
+                .replace('\r', '').replace('\n', '')
+            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.XPATH, '//a[@class="main_img"]'))
+            images = driver.find_elements(By.XPATH, '//a[@class="main_img"]')
             k = 0
-            item_images_arr = []
+            images_urls = []
             for image in images:
+                images_urls.append(image.get_attribute('href'))
+            item_images_arr = []
+            for item_image_url in set(images_urls):
                 k += 1
-                item_image_url = f"{image.get_attribute('src').split('?')[0]}?wid=1000"
-                item_image_ext = 'webp'
+                item_image_ext = os.path.splitext(os.path.basename(item_image_url))[1].split('?')[0][1:]
                 item_image_name = f'{item_id}_{k}.{item_image_ext}'
                 item_image_path = os.path.join(PATH_IMAGES, item_image_name)
                 # проверяем нет ли еще этой картинки, что бы при повторном запуске не качать снова
@@ -149,8 +136,10 @@ def get_data(driver, items) -> list:
                 item_images,
             ))
         except Exception as ex:
-            print(ex)
+            # print(ex)
+            time.sleep(random.randint(10, 20))
             continue
+        time.sleep(random.randint(1, 5))
     return items_list
 
 
@@ -158,9 +147,7 @@ def get_links(driver, page_url, n) -> dict:
     out_data = {'items': None, 'target_url': None}
     driver.get(page_url)
     try:
-        WebDriverWait(driver, 30).until(lambda d: d.find_element(By.XPATH, '//article/a'))
-        out_data['target_url'] = f'{IN_DATA["target_url"]}&page={n}'
-        elements = driver.find_elements(By.XPATH, '//article/a')
+        elements = driver.find_elements(By.CLASS_NAME, 'product_cat_title')
         items = []
         for element in elements:
             items.append([
@@ -169,6 +156,7 @@ def get_links(driver, page_url, n) -> dict:
         out_data['items'] = items
     except Exception as ex:
         print(ex)
+    # print()
     return out_data
 
 

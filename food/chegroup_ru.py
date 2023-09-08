@@ -16,7 +16,7 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'chabrec',
     'host': 'https://chegroup.ru/',
-    'target_url': 'https://chegroup.ru/catalog/chabrec/vypechka/',
+    'target_url': 'https://chegroup.ru/catalog/che-dor/',
     'qty_items': 10,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))

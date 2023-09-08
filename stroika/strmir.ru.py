@@ -16,12 +16,12 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'strmir.ru',
     'host': 'https://www.strmir.ru/',
-    'target_url': 'https://www.strmir.ru/catalog/stroitelnye_materialy/alyuminievye_profilya_/truba_alyuminievaya_profilnaya_boks/',
-    'qty_items': 2,
+    'target_url': 'https://www.strmir.ru/catalog/tovary_dlya_doma/vse_dlya_doma/shtory/',
+    'qty_items': 100,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
-PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
+PATH_IMAGES = os.path.join(PATH_ROOT, 'imgs')
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',

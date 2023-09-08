@@ -17,7 +17,7 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'ekonomstroy.ru',
     'host': 'https://www.ekonomstroy.ru/',
-    'target_url': 'https://www.ekonomstroy.ru/catalog/aksessuary_dlya_avto/',
+    'target_url': 'https://www.ekonomstroy.ru/catalog/shtory/',
     'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
@@ -103,7 +103,7 @@ def get_data(driver, items) -> list:
             WebDriverWait(driver, 60).until(lambda d: d.find_element(By.ID, 'bx_eshop_wrap'))
             item_title = driver.find_element(By.TAG_NAME, 'h1').text
             item_brand = driver.find_element(By.XPATH, '//span[contains(text(), "Производитель:")]/parent::p//span[@class="att_span"]').text
-            item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content').replace(' руб.', '')
+            item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content').replace(' руб.', '').replace(' ', '')
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
             # sizes = driver.find_elements(By.XPATH, '//select[@data-id="sizeSelect"]//option')
             # sizes_list = []

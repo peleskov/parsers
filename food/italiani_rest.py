@@ -43,7 +43,7 @@ def get_items():
         try:
             # Проверим доступен ли сайт
             driver.get(IN_DATA['host'])
-            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CLASS_NAME, 'main-menu'))
+            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CLASS_NAME, 'site-header'))
             print('Сайт доступен продолжаем...')
         except Exception as ex:
             print('Сайт не доступен останавливаемся!')
@@ -91,19 +91,19 @@ def get_data(driver, items) -> list:
             # получаем каждую старницу и собираем данные
             # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
             driver.get(item[0])
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'product-container'))
+            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'product-top'))
             item_title = driver.find_element(By.TAG_NAME, 'h1').text
             # item_brand = driver.find_element(By.XPATH, '//meta[@itemprop="brand"]').get_attribute('content')
             item_brand = IN_DATA['name']
-            item_price = driver.find_element(By.XPATH, '//div[@class="full-price"]//span').text
+            item_price = driver.find_element(By.XPATH, '//div[@class="price"]').text
             item_price = re.sub(r"[^\d\.]", "", item_price)
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
             item_sizes = ''
-            item_desc = driver.find_element(By.XPATH, '//div[@class="structure-list"]//span').get_attribute('innerHTML') \
+            item_desc = driver.find_element(By.XPATH, '//div[@class="block-wrapper"]/p').get_attribute('innerHTML') \
                 .replace('\r', '').replace('\n', '')
 
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'image'))
-            images = driver.find_elements(By.XPATH, '//div[@class="image"]//img')
+            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'images'))
+            images = driver.find_elements(By.XPATH, '//div[@class="product-top"]//div[@class="images"]//img')
             k = 0
             images_urls = []
             for image in images:
@@ -148,8 +148,8 @@ def get_links(driver, page_url, n) -> dict:
     out_data = {'items': None, 'target_url': None}
     driver.get(page_url)
     try:
-        WebDriverWait(driver, 30).until(lambda d: d.find_element(By.CLASS_NAME, 'product-item'))
-        elements = driver.find_elements(By.XPATH, '//div[contains(@class, "product-item")]//div[@class="title"]//a')
+        WebDriverWait(driver, 30).until(lambda d: d.find_element(By.CLASS_NAME, 'menu-item'))
+        elements = driver.find_elements(By.CLASS_NAME, 'menu-item__block')
         items = []
         for element in elements:
             items.append([
@@ -158,6 +158,7 @@ def get_links(driver, page_url, n) -> dict:
         out_data['items'] = items
     except Exception as ex:
         print(ex)
+    print()
     return out_data
 
 
