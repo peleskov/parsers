@@ -5,6 +5,8 @@ import random
 import time
 import requests
 import re
+
+import winsound
 from lxml import html
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -16,7 +18,7 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'stroganov-grill.ru',
     'host': 'https://stroganov-grill.ru/',
-    'target_url': 'https://stroganov-grill.ru/menu/zavtraki/',
+    'target_url': 'https://stroganov-grill.ru/menu/shashlyki_1/',
     'qty_items': 5,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
@@ -62,20 +64,8 @@ def get_items():
         if not os.path.exists(PATH_IMAGES):
             os.makedirs(PATH_IMAGES)
 
-        # Соберем ссылки со всех страниц, ограничение по количеству IN_DATA['qty_items']
-        items_list = []
-        url = IN_DATA['target_url']
-        page_n = 1
-        driver.get(url)
-        while len(items_list) < IN_DATA['qty_items'] and url:
-            page_n += 1
-            data = get_links(driver, url, page_n)
-            if data['items']:
-                items_list.extend(data['items'])
-            url = data['target_url']
-            time.sleep(random.randint(1, 5))
         # Соберем данные
-        results = get_data(driver, items_list)
+        results = get_data(driver)
         if len(results) > 0:
             # пишем лист с товарами в csv файл
             with open(path_results, 'a', newline="", encoding='UTF8') as f:
@@ -84,32 +74,26 @@ def get_items():
     return True
 
 
-def get_data(driver, items) -> list:
+def get_data(driver) -> list:
+    driver.get(IN_DATA['target_url'])
+    items = driver.find_elements(By.XPATH, '//div[@class="slide_main"]')
     items_list = []
     for item in items[:IN_DATA['qty_items']]:
         try:
             # получаем каждую старницу и собираем данные
             # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
-            driver.get(item[0])
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'product_wrap'))
-            item_title = driver.find_element(By.TAG_NAME, 'h1').text
-            # item_brand = driver.find_element(By.XPATH, '//meta[@itemprop="brand"]').get_attribute('content')
+            item_title = item.find_element(By.CLASS_NAME, 'slide_main_title_content').text
             item_brand = IN_DATA['name']
-            item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content')
+            item_price = item.find_element(By.CLASS_NAME, 'product-item-price-current').text
             item_price = re.sub(r"[^\d\.]", "", item_price)
-            item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
+            item_desc = item.find_element(By.CLASS_NAME, 'slide_main_text_properties').get_attribute('innerHTML') \
+                .replace('\r', '').replace('\n', '').replace('\t', '')
             item_sizes = ''
-            item_desc = driver.find_element(By.XPATH, '//div[@class="product_wrap"]//div[@class="properties"]').get_attribute('innerHTML') \
-                .replace('\r', '').replace('\n', '')
+            images_urls = [item.find_element(By.CLASS_NAME, 'slide_main_img').get_attribute('src')]
 
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.XPATH, '//div[@class="product_wrap"]//img'))
-            images = driver.find_elements(By.XPATH, '//div[@class="product_wrap"]//img')
+            item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item_desc}{images_urls[0]}".encode("utf-8")).hexdigest()
             k = 0
-            images_urls = []
-            for image in images:
-                images_urls.append(image.get_attribute('src'))
             item_images_arr = []
-            print()
             for item_image_url in set(images_urls):
                 k += 1
                 item_image_ext = os.path.splitext(os.path.basename(item_image_url))[1].split('?')[0][1:]
@@ -145,23 +129,7 @@ def get_data(driver, items) -> list:
     return items_list
 
 
-def get_links(driver, page_url, n) -> dict:
-    out_data = {'items': None, 'target_url': None}
-    driver.get(page_url)
-    try:
-        WebDriverWait(driver, 30).until(lambda d: d.find_element(By.CLASS_NAME, 'catalog_wrap'))
-        elements = driver.find_elements(By.XPATH, '//div[@class="catalog_wrap"]/div[@class="cards_wrapper catalog_section"]//a[@class="product_name"]')
-        items = []
-        for element in elements:
-            items.append([
-                element.get_attribute("href"),
-            ])
-        out_data['items'] = items
-    except Exception as ex:
-        print(ex)
-    return out_data
-
-
 if __name__ == '__main__':
     get_items()
+    winsound.Beep(500, 1000)
 
