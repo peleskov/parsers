@@ -16,10 +16,11 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'zarina.ru',
     'host': 'https://zarina.ru/',
-    'target_url': 'https://zarina.ru/man/accessories/',
-    'qty_items': 10000,
+    'folder': 'woman/clothes',
+    'target_url': 'https://zarina.ru/catalog/clothes/',
+    'qty_items': 1500,
 }
-PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
+PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
 PATH_DRIVER = os.path.join('chromedriver.exe')
 PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
 HEADERS = {
@@ -65,25 +66,26 @@ def get_items():
         # Соберем ссылки со всех страниц, ограничение по количеству IN_DATA['qty_items']
         items_list = []
         url = IN_DATA['target_url']
-        page_n = 1
-        while len(items_list) < IN_DATA['qty_items'] and url:
+        page_n = 0
+        next_page_btn = True
+        while len(items_list) < IN_DATA['qty_items'] and url and next_page_btn:
             page_n += 1
             data = get_links(driver, url, page_n)
             if data['items']:
                 items_list.extend(data['items'])
             url = data['target_url']
+            try:
+                WebDriverWait(driver, 60).until(lambda d: d.find_element(By.CLASS_NAME, 'pagination__more-btn'))
+                next_page_btn = True
+            except exceptions.TimeoutException:
+                next_page_btn = False
             time.sleep(random.randint(1, 5))
         # Соберем данные
-        results = get_data(driver, items_list)
-        if len(results) > 0:
-            # пишем лист с товарами в csv файл
-            with open(path_results, 'a', newline="", encoding='UTF8') as f:
-                writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-                writer.writerows(results)
+        get_data(driver, items_list, path_results)
     return True
 
 
-def get_data(driver, items) -> list:
+def get_data(driver, items, path) -> bool:
     items_list = []
     for item in items[:IN_DATA['qty_items']]:
         try:
@@ -91,7 +93,8 @@ def get_data(driver, items) -> list:
             # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
             driver.get(item[0])
             WebDriverWait(driver, 60).until(lambda d: d.find_element(By.CLASS_NAME, 'product__wrapper'))
-            item_title = driver.find_element(By.XPATH, '//h1[@class="product__title"]').text
+            item_title = driver.find_element(By.XPATH, '//h1[@class="product__title"]').text \
+                .replace('\r', ' ').replace('\n', ' ')
             item_brand = IN_DATA['name']
             item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content')
             item_price = round(int(item_price)/100)*100
@@ -103,7 +106,7 @@ def get_data(driver, items) -> list:
             item_sizes = '||'.join(sizes_list)
 
             item_desc = driver.find_element(By.CLASS_NAME, 'product__desc').get_attribute('innerHTML') \
-                .replace('\r', '').replace('\n', '')
+                .replace('\r', ' ').replace('\n', ' ')
 
             images = driver.find_elements(By.XPATH, '//div[@class="product__media-list"]//img')
             k = 0
@@ -126,8 +129,8 @@ def get_data(driver, items) -> list:
                 else:
                     item_images_arr.append(item_image_name)
             item_images = '||'.join(item_images_arr)
-            # заполняем лист с товарами
-            items_list.append((
+            # добавим строку в файл
+            item_row = [
                 item_id,
                 item_title,
                 item_brand,
@@ -135,12 +138,15 @@ def get_data(driver, items) -> list:
                 item_sizes,
                 item_desc,
                 item_images,
-            ))
+            ]
+            with open(path, 'a', newline="", encoding='UTF8') as f:
+                writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(item_row)
 
         except Exception as ex:
             print(ex)
             continue
-    return items_list
+    return True
 
 
 def get_links(driver, page_url, n) -> dict:
@@ -148,7 +154,7 @@ def get_links(driver, page_url, n) -> dict:
     driver.get(page_url)
     try:
         WebDriverWait(driver, 30).until(lambda d: d.find_element(By.CLASS_NAME, 'catalog__content'))
-        out_data['target_url'] = f'{IN_DATA["target_url"]}?page={n}&recordsPageCount=100'
+        out_data['target_url'] = f'{IN_DATA["target_url"]}?page={n}'
         elements = driver.find_elements(By.XPATH, '//div[@class="catalog__product-content"]/a')
         items = []
         for element in elements:

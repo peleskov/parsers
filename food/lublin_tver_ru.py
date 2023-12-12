@@ -1,3 +1,5 @@
+import winsound
+import csv
 import hashlib
 import os
 import random
@@ -14,11 +16,11 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'lublin-tver.ru',
+    'name': 'result',
     'host': 'https://lublin-tver.ru/',
-    'target_url': 'https://lublin-tver.ru/menu/',
+    'target_url': 'https://lublin-tver.ru/menu/obedy_budnie_dni_11_00_16_00/',
     'qty_items': 100,
-    'data_url': 'https://lublin-tver.ru/ajax/getProductInformation.php?sessid=a5f136b0b4e97d324b1b41d1247a0fd2',
+    'data_url': 'https://lublin-tver.ru/ajax/getProductInformation.php?sessid=3f87f0118c1630f49e729af512f71441',
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -131,7 +133,7 @@ def get_data(driver, items) -> list:
                 else:
                     item_images_arr.append(item_image_name)
             item_images = '||'.join(item_images_arr)
-            print()
+            # print()
             # заполняем лист с товарами
             items_list.append((
                 item_id,
@@ -171,4 +173,5 @@ def get_ids(driver, page_url, n) -> dict:
 
 if __name__ == '__main__':
     get_items()
+    winsound.Beep(500, 1000)
 

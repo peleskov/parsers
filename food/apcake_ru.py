@@ -1,3 +1,4 @@
+import winsound
 import csv
 import hashlib
 import os
@@ -14,10 +15,10 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'apcake',
+    'name': 'result',
     'host': 'https://apcake.ru/',
-    'target_url': 'https://apcake.ru/#drinks',
-    'qty_items': 10,
+    'target_url': 'https://apcake.ru/',
+    'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -146,6 +147,7 @@ def get_data(driver, items) -> list:
 def get_links(driver, page_url, n) -> dict:
     out_data = {'items': None, 'target_url': None}
     driver.get(page_url)
+    time.sleep(random.randint(10, 20))
     try:
         elements = driver.find_elements(By.XPATH, '//div[@data-product-url]')
         items = []
@@ -156,10 +158,9 @@ def get_links(driver, page_url, n) -> dict:
         out_data['items'] = items
     except Exception as ex:
         print(ex)
-    # print()
     return out_data
 
 
 if __name__ == '__main__':
     get_items()
-
+    winsound.Beep(500, 1000)

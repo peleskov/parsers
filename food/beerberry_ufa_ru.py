@@ -19,7 +19,7 @@ IN_DATA = {
     'name': 'beerberry_ufa',
     'host': 'https://www.beerberry-ufa.ru/',
     'target_url': 'https://www.beerberry-ufa.ru/delivery/start/',
-    'qty_items': 5,
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -93,14 +93,13 @@ def get_data(driver, items) -> list:
             # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
             driver.get(item[0])
             WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'delivery-item'))
-            item_title = driver.find_element(By.TAG_NAME, 'h3').text
+            item_title = driver.find_element(By.TAG_NAME, 'h3').get_attribute('innerHTML')
             item_brand = IN_DATA['name']
             item_price = driver.find_element(By.XPATH, '//div[@class="info-product__total"]//i[@class="total__price"]').text
             item_price = re.sub(r"[^\d\.]", "", item_price)
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item[0]}".encode("utf-8")).hexdigest()
             item_sizes = ''
             item_desc = ''
-
             WebDriverWait(driver, 20).until(lambda d: d.find_element(By.CLASS_NAME, 'delivery-item__image'))
             images = driver.find_elements(By.XPATH, '//div[@class="delivery-item__image"]/img')
             k = 0

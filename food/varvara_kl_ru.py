@@ -1,3 +1,4 @@
+import winsound
 import csv
 import hashlib
 import os
@@ -14,10 +15,10 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'varvara_kl',
+    'name': 'result',
     'host': 'https://varvara-kl.ru/',
     'target_url': 'https://varvara-kl.ru/',
-    'qty_items': 10,
+    'qty_items': 10000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -131,4 +132,5 @@ def get_data(items) -> list:
 
 if __name__ == '__main__':
     get_items()
+    winsound.Beep(500, 1000)
 

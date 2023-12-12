@@ -18,12 +18,12 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'barellinn',
     'host': 'http://barellinn.com/',
-    'target_url': 'http://barellinn.com/blog/category/produkciya/kuxnya/',
+    'target_url': 'http://barellinn.com/blog/category/produkciya/delikatesy/',
     'not_image': [
         'http://barellinn.com/wp-content/plugins/kama-thumbnail_ed/thumb/653db3b42_300x300.png',
         'http://barellinn.com/wp-content/plugins/kama-thumbnail_ed/thumb/aa33453d9_300x300.png'
     ],
-    'qty_items': 9,
+    'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')

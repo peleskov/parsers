@@ -19,7 +19,7 @@ IN_DATA = {
     'name': 'myasoroob.ru',
     'host': 'https://myasoroob.ru/',
     'target_url': 'https://myasoroob.ru/',
-    'qty_items': 5,
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')

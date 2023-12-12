@@ -14,10 +14,10 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'italiani.rest',
+    'name': 'result',
     'host': 'https://italiani.rest/',
-    'target_url': 'https://italiani.rest/menu/pasta/',
-    'qty_items': 10,
+    'target_url': 'https://italiani.rest/menu/obedy/',
+    'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')

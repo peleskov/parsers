@@ -57,7 +57,7 @@ def get_items():
         path_results = os.path.join(PATH_ROOT, f'results_{IN_DATA["name"].replace(".", "_")}.csv')
         # Создаем csv файл для загрузки данных в базу, и пишем в него первую строку с обозначением колонок
         with open(path_results, 'w', newline="", encoding='UTF8') as f:
-            f.write('id;Title;Brand;Price;Sizes;Description;Images;\n')
+            f.write('id;Crumbs;Title;Brand;Price;Sizes;Params;Description;Images;\n')
 
         # Создаем каталог для изображений если его нет
         if not os.path.exists(PATH_IMAGES):

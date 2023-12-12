@@ -19,7 +19,7 @@ IN_DATA = {
     'name': 'beerhouse-kazan.ru',
     'host': 'http://www.beerhouse-kazan.ru/',
     'target_url': 'http://www.beerhouse-kazan.ru/page/menu',
-    'qty_items': 5,
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -93,7 +93,6 @@ def get_data(items) -> list:
             .replace('\r', '').replace('\n', '')
         images_urls = [item.find_element(By.TAG_NAME, 'img').get_attribute('src')]
         item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item_desc}{images_urls[0]}".encode("utf-8")).hexdigest()
-        print()
         k = 0
         item_images_arr = []
         for item_image_url in set(images_urls):

@@ -18,8 +18,8 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'stroganov-grill.ru',
     'host': 'https://stroganov-grill.ru/',
-    'target_url': 'https://stroganov-grill.ru/menu/shashlyki_1/',
-    'qty_items': 5,
+    'target_url': 'https://stroganov-grill.ru/menu/novogodnie-blyuda/',
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -82,15 +82,14 @@ def get_data(driver) -> list:
         try:
             # получаем каждую старницу и собираем данные
             # 'id;Title;Brand;Price;Sizes;Description;Images;\n'
-            item_title = item.find_element(By.CLASS_NAME, 'slide_main_title_content').text
+            item_title = item.find_element(By.CLASS_NAME, 'slide_main_title_content').get_attribute('innerHTML')
             item_brand = IN_DATA['name']
-            item_price = item.find_element(By.CLASS_NAME, 'product-item-price-current').text
+            item_price = item.find_element(By.CLASS_NAME, 'product-item-price-current').get_attribute('innerHTML')
             item_price = re.sub(r"[^\d\.]", "", item_price)
             item_desc = item.find_element(By.CLASS_NAME, 'slide_main_text_properties').get_attribute('innerHTML') \
                 .replace('\r', '').replace('\n', '').replace('\t', '')
             item_sizes = ''
             images_urls = [item.find_element(By.CLASS_NAME, 'slide_main_img').get_attribute('src')]
-
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item_desc}{images_urls[0]}".encode("utf-8")).hexdigest()
             k = 0
             item_images_arr = []

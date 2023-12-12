@@ -5,6 +5,8 @@ import random
 import time
 import requests
 import re
+
+import winsound
 from lxml import html
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -16,8 +18,8 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'james-resta.ru',
     'host': 'https://james-resta.ru/',
-    'target_url': 'https://james-resta.ru/catalog/tortyi-na-zakaz',
-    'qty_items': 5,
+    'target_url': 'https://james-resta.ru/catalog/18-',
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -142,4 +144,5 @@ def get_data(items) -> list:
 
 if __name__ == '__main__':
     get_items()
+    winsound.Beep(500, 1000)
 

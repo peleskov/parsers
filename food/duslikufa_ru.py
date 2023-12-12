@@ -18,8 +18,8 @@ from selenium.common import exceptions
 IN_DATA = {
     'name': 'duslikufa.ru',
     'host': 'https://duslikufa.ru/',
-    'target_url': 'https://duslikufa.ru/snacks',
-    'qty_items': 5,
+    'target_url': 'https://duslikufa.ru/deserts',
+    'qty_items': 5000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')

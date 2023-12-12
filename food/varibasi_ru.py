@@ -5,6 +5,8 @@ import random
 import time
 import requests
 import re
+
+import winsound
 from lxml import html
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -14,10 +16,10 @@ from selenium.webdriver.common.by import By
 from selenium.common import exceptions
 
 IN_DATA = {
-    'name': 'varibasi.ru',
+    'name': 'result',
     'host': 'https://www.varibasi.ru/',
-    'target_url': 'https://www.varibasi.ru/menu/rolly/',
-    'qty_items': 10,
+    'target_url': 'https://www.varibasi.ru/menu/dopolnenija_k_zakazu',
+    'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"))
 PATH_DRIVER = os.path.join('chromedriver.exe')
@@ -162,4 +164,5 @@ def get_links(driver, page_url, n) -> dict:
 
 if __name__ == '__main__':
     get_items()
+    winsound.Beep(1000, 1000)
 
