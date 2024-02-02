@@ -21,10 +21,10 @@ IN_DATA = {
     'folder': 'kontaktnye_linzy',
     'host': 'https://randewoo.ru/',
     'target_url': 'https://randewoo.ru/category/kontaktnye-linzy?in_stock=%E2%9C%93',
-    'qty_items': 1000,
+    'qty_items': 10,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
-PATH_DRIVER = os.path.join('chromedriver.exe')
+PATH_DRIVER = os.path.join('../clothes/chromedriver.exe')
 PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
