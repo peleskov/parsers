@@ -91,7 +91,7 @@ def get_data(driver, items, path_results) -> bool:
             item_price = driver.find_element(By.CLASS_NAME, 'b-card__price-currentprice').text
             item_price = re.sub(r"[^\d.]", "", item_price)
             item_old_price = driver.find_element(By.CLASS_NAME, 'b-card__price-oldprice').text
-            item_old_price = re.sub(r"[^\d.]", "", item_price)
+            item_old_price = re.sub(r"[^\d.]", "", item_old_price)
             item_params = {}
             try:
                 prms = driver.find_elements(By.XPATH, '//div[@class="b-card__table"]//div[@class="b-card__table-item"]')
@@ -116,6 +116,7 @@ def get_data(driver, items, path_results) -> bool:
                 item_params['extend'] = [p.get_attribute('data-title') for p in prms]
             except Exception as ex:
                 pass
+            item_params = json.dumps(item_params)
             item_desc = ''
             try:
                 item_desc = driver.find_element(By.CLASS_NAME, 'b-card__tabdescription').get_attribute('innerHTML')
@@ -128,6 +129,7 @@ def get_data(driver, items, path_results) -> bool:
                 item_require = re.sub(r'<a.+?>(.+?)</a>', r'\1', item_require)
             except Exception as ex:
                 pass
+
             item_id = hashlib.sha256(f"{item_title}{item_price}{item_old_price}{item['link']}".encode("utf-8")).hexdigest()
             item_image = ''
             try:
@@ -148,26 +150,15 @@ def get_data(driver, items, path_results) -> bool:
                     item_image = item_image_name
             except Exception as ex:
                 pass
-
-
-            print()
-
+            item_screenshots = ''
             try:
-                item_desc = driver.find_element(By.XPATH, '//div[@itemprop="description"]').get_attribute('innerHTML')
-                item_desc = re.sub(r'<a.+?>(.+?)</a>', r'\1', item_desc.get_attribute('innerHTML'))
-            except Exception as ex:
-                pass
-            item_desc = item_desc.replace('\r', '').replace('\n', '').replace('\r\n', '').replace('\n\r', '')
-            item_params = ''
-            item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item['link']}".encode("utf-8")).hexdigest()
-            try:
-                images = driver.find_elements(By.XPATH, '//div[@data-fancybox="gallery"]/img')
-                images_urls = [i.get_attribute('src') for i in images]
-                if len(images_urls) > 0:
+                screenshots = driver.find_elements(By.XPATH, '//div[@class="b-card__slider-image"]//img')
+                screenshots_urls = [i.get_attribute('src') for i in screenshots]
+                if len(screenshots_urls) > 0:
                     k = 0
-                    item_images_arr = []
-                    images_urls = set(images_urls)
-                    for item_image_url in images_urls:
+                    item_screenshots_arr = []
+                    screenshots_urls = set(screenshots_urls)
+                    for item_image_url in screenshots_urls:
                         if k > 3:
                             break
                         k += 1
@@ -180,34 +171,48 @@ def get_data(driver, items, path_results) -> bool:
                                 image = requests.get(item_image_url, headers=HEADERS)
                                 with open(item_image_path, 'wb') as f:
                                     f.write(image.content)
-                                    item_images_arr.append(item_image_name)
+                                    item_screenshots_arr.append(item_image_name)
                             except Exception as ex:
                                 pass
                         else:
-                            item_images_arr.append(item_image_name)
-                    item_images = '||'.join(item_images_arr)
+                            item_screenshots_arr.append(item_image_name)
+                    item_screenshots = json.dumps(item_screenshots_arr)
             except Exception as ex:
                 pass
 
+            item_videos = []
+            try:
+                videos = driver.find_elements(By.XPATH, '//div[contains(@class,"b-card__slider-image b-card__slider-image--videopreview")]/a')
+                for video in videos:
+                    item_videos.append({
+                        'video': video.get_attribute('href'),
+                        'preview': video.find_element(By.TAG_NAME, 'img').get_attribute('src')
+                    })
+
+            except Exception as ex:
+                pass
+            item_videos = json.dumps(item_videos)
             # пишем строку с товаром в csv файл
             with open(path_results, 'a', newline="", encoding='UTF8') as f:
                 writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
                 writer.writerow([
                     item_id,
-                    item_crumbs,
                     item_title,
-                    item_brand,
                     item_price,
-                    item_sizes,
+                    item_old_price,
                     item_params,
                     item_desc,
-                    item_images,
+                    item_require,
+                    item_image,
+                    item_screenshots,
+                    item_videos,
                 ])
 
         except Exception as ex:
             print(ex)
             time.sleep(random.randint(1, 5))
             continue
+        print()
         time.sleep(random.randint(1, 3))
     return True
 
