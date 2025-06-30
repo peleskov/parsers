@@ -8,7 +8,7 @@ import time
 import requests
 import re
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -21,7 +21,7 @@ IN_DATA = {
     'folder': 'games',
     'host': 'https://gabestore.ru/',
     'target_url': 'https://gabestore.ru/search/next?series=&ProductFilter%5BsortName%5D=views&ProductFilter%5BpriceTo%5D=0&ProductFilter%5Bavailable%5D=0&ProductFilter%5Bavailable%5D=1',
-    'qty_items': 10,
+    'qty_items': 1000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
 PATH_DRIVER = os.path.join('../clothes/chromedriver.exe')
@@ -37,7 +37,7 @@ HEADERS = {
 
 def get_items():
     # Запускаем сервис Chrome
-    service = ChromeService(ChromeDriverManager().install())
+    service = Service('../chromedriver-win64/chromedriver.exe')
 
     options = Options()
     options.add_argument('headless')  # Скроем окно браузера
@@ -61,7 +61,7 @@ def get_items():
         path_results = os.path.join(PATH_ROOT, f'results_{IN_DATA["name"].replace(".", "_")}.csv')
         # Создаем csv файл для загрузки данных в базу, и пишем в него первую строку с обозначением колонок
         with open(path_results, 'w', newline="", encoding='UTF8') as f:
-            f.write('id;Crumbs;Title;Brand;Price;Sizes;Params;Description;Images;\n')
+            f.write('id,title,price,old_price,params,desc,require,image,screenshots,videos,\n')
 
         # Создаем каталог для изображений если его нет
         if not os.path.exists(PATH_IMAGES):
@@ -87,7 +87,7 @@ def get_data(driver, items, path_results) -> bool:
             # получаем каждую старницу и собираем данные
             driver.get(f'{IN_DATA["host"][:-1]}{item["link"]}')
             WebDriverWait(driver, 20).until(lambda d: d.find_element(By.TAG_NAME, 'h1'))
-            item_title = driver.find_element(By.TAG_NAME, 'h1').text.replace('купить ', '')
+            item_title = driver.find_element(By.TAG_NAME, 'h1').text.replace('купить ', '').replace('КУПИТЬ ', '')
             item_price = driver.find_element(By.CLASS_NAME, 'b-card__price-currentprice').text
             item_price = re.sub(r"[^\d.]", "", item_price)
             item_old_price = driver.find_element(By.CLASS_NAME, 'b-card__price-oldprice').text
@@ -116,16 +116,16 @@ def get_data(driver, items, path_results) -> bool:
                 item_params['extend'] = [p.get_attribute('data-title') for p in prms]
             except Exception as ex:
                 pass
-            item_params = json.dumps(item_params)
+            item_params = json.dumps(item_params, ensure_ascii=False)
             item_desc = ''
             try:
-                item_desc = driver.find_element(By.CLASS_NAME, 'b-card__tabdescription').get_attribute('innerHTML')
+                item_desc = driver.find_element(By.CLASS_NAME, 'b-card__tabdescription').get_attribute('innerHTML').replace('\r', '').replace('\n', '')
                 item_desc = re.sub(r'<a.+?>(.+?)</a>', r'\1', item_desc)
             except Exception as ex:
                 pass
             item_require = ''
             try:
-                item_require = driver.find_element(By.CLASS_NAME, 'game-describe__tab').get_attribute('innerHTML')
+                item_require = driver.find_element(By.CLASS_NAME, 'game-describe__tab').get_attribute('innerHTML').replace('\r', '').replace('\n', '')
                 item_require = re.sub(r'<a.+?>(.+?)</a>', r'\1', item_require)
             except Exception as ex:
                 pass
@@ -176,7 +176,7 @@ def get_data(driver, items, path_results) -> bool:
                                 pass
                         else:
                             item_screenshots_arr.append(item_image_name)
-                    item_screenshots = json.dumps(item_screenshots_arr)
+                    item_screenshots = json.dumps(item_screenshots_arr, ensure_ascii=False)
             except Exception as ex:
                 pass
 
@@ -191,7 +191,7 @@ def get_data(driver, items, path_results) -> bool:
 
             except Exception as ex:
                 pass
-            item_videos = json.dumps(item_videos)
+            item_videos = json.dumps(item_videos, ensure_ascii=False)
             # пишем строку с товаром в csv файл
             with open(path_results, 'a', newline="", encoding='UTF8') as f:
                 writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
@@ -212,7 +212,6 @@ def get_data(driver, items, path_results) -> bool:
             print(ex)
             time.sleep(random.randint(1, 5))
             continue
-        print()
         time.sleep(random.randint(1, 3))
     return True
 

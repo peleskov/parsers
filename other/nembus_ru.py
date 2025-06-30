@@ -11,7 +11,8 @@ import requests
 import re
 from lxml import html
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -19,13 +20,12 @@ from selenium.common import exceptions
 
 IN_DATA = {
     'name': 'nembus_ru',
-    'folder': 'headphones',
+    'folder': 'garnituri',
     'host': 'https://nembus.ru/',
-    'target_url': 'https://nembus.ru/category/1061/?delivery_days=1_3',
-    'qty_items': 1000,
+    'target_url': 'https://nembus.ru/category/3136/?sort=default',
+    'qty_items': 2000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
-PATH_DRIVER = os.path.join('../clothes/chromedriver.exe')
 PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -34,13 +34,15 @@ HEADERS = {
     'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,ro;q=0.6'
 }
 
+print(f'Каталог: {IN_DATA["folder"]}')
 
 def get_items():
     # Запускаем сервис Chrome
-    service = ChromeService(executable_path=PATH_DRIVER)
+    service = Service('../chromedriver-win64/chromedriver.exe')
+
 
     options = Options()
-    options.add_argument('headless') # Скроем окно браузера
+    # options.add_argument('headless') # Скроем окно браузера
     # options.add_experimental_option( "prefs",{'profile.managed_default_content_settings.javascript': 2}) # Отключаем JavsScript
     with webdriver.Chrome(service=service, options=options) as driver:
         # driver.maximize_window()
@@ -48,7 +50,7 @@ def get_items():
         try:
             # Проверим доступен ли сайт
             driver.get(IN_DATA['host'])
-            WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CLASS_NAME, 'page-header'))
+            WebDriverWait(driver, 120).until(lambda d: d.find_element(By.CLASS_NAME, 'page-header'))
             print('Сайт доступен продолжаем...')
         except Exception as ex:
             print('Сайт не доступен останавливаемся!')
@@ -87,12 +89,16 @@ def get_data(driver, items, path_results) -> bool:
             flag_try = 0
             # получаем каждую старницу и собираем данные
             driver.get(item['link'])
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.TAG_NAME, 'h1'))
+            WebDriverWait(driver, 40).until(lambda d: d.find_element(By.TAG_NAME, 'h1'))
             item_title = driver.find_element(By.TAG_NAME, 'h1').text.replace('{', "").replace('}', "")
-            item_price = driver.find_element(By.XPATH, '//section[@class="product"]//span[@itemprop="price"]').get_attribute('innerHTML')
+            try:
+                item_price = driver.find_element(By.XPATH, '//meta[@itemprop="price"]').get_attribute('content')
+            except Exception as ex:
+                continue
+                pass
+
             item_price = round(float(re.sub(r"[^\d\.]", "", item_price.replace(',', '.'))))
             item_brand = IN_DATA['name']
-
             item_params = ''
             try:
                 flag_try = 1
@@ -109,13 +115,13 @@ def get_data(driver, items, path_results) -> bool:
                             })
                     except Exception as ex:
                         pass
-                item_params = json.dumps(props)
+                item_params = json.dumps(props, ensure_ascii=False)
             except Exception as ex:
                 pass
             crumbs = []
             for cr in driver.find_elements(By.XPATH, '//ul[contains(@class, "breadcrumbs-list")]//li/a'):
                 crumbs.append(cr.text)
-            item_crumbs = json.dumps(crumbs[1:-1])
+            item_crumbs = json.dumps(crumbs[1:-1], ensure_ascii=False)
             item_brand = crumbs[-2]
             try:
                 flag_try = 3
@@ -128,7 +134,7 @@ def get_data(driver, items, path_results) -> bool:
             item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item['link']}".encode("utf-8")).hexdigest()
 
             item_images = ''
-            images = driver.find_elements(By.XPATH, '//div[contains(@class, "product-slider")]//div[@class="swiper-slide"]//img')
+            images = driver.find_elements(By.XPATH, '//div[contains(@class, "product-slider")]//div[contains(@class,"swiper-slide")]//img')
             k = 0
             images_urls = [i.get_attribute('src') for i in images]
             if len(images_urls) > 0:
@@ -139,7 +145,15 @@ def get_data(driver, items, path_results) -> bool:
                     if k > 3:
                         break
                     k += 1
-                    item_image_ext = os.path.splitext(os.path.basename(item_image_url))[1].split('?')[0][1:]
+                    if '.webp' in item_image_url:
+                        item_image_ext = 'webp'
+                    elif '.jpg' in item_image_url or '.jpeg' in item_image_url:
+                        item_image_ext = 'jpg'
+                    elif '.png' in item_image_url:
+                        item_image_ext = 'png'
+                    else:
+                        item_image_ext = 'jpg'
+
                     item_image_name = f'{item_id}_{k}.{item_image_ext}'
                     item_image_path = os.path.join(PATH_IMAGES, item_image_name)
                     # проверяем нет ли еще этой картинки, что бы при повторном запуске не качать снова
@@ -155,7 +169,6 @@ def get_data(driver, items, path_results) -> bool:
                     else:
                         item_images_arr.append(item_image_name)
                 item_images = '||'.join(item_images_arr)
-
             # пишем строку с товаром в csv файл
             with open(path_results, 'a', newline="", encoding='UTF8') as f:
                 writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
@@ -192,6 +205,7 @@ def get_links(driver) -> list:
     while True:
         if len(items) >= IN_DATA['qty_items']:
             break
+        WebDriverWait(driver, 120).until(lambda d: d.find_element(By.XPATH, '//ul[contains(@class, "category-products-list")]'))
         try:
             elements = driver.find_elements(By.XPATH, '//ul[contains(@class, "category-products-list")]//a[@class="product-item__img-link"]')
             if len(elements) == 0:
@@ -217,4 +231,5 @@ def get_links(driver) -> list:
 
 if __name__ == '__main__':
     get_items()
+    print(f'Каталог: {IN_DATA["folder"]}')
     winsound.Beep(500, 1000)
