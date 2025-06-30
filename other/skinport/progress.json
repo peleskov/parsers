@@ -1,0 +1,18 @@
+{
+    "current_category": 2,
+    "total_collected": 643,
+    "categories_progress": [
+        {
+            "collected": 34,
+            "skip": 1
+        },
+        {
+            "collected": 9,
+            "skip": 1
+        },
+        {
+            "collected": 600,
+            "skip": 12
+        }
+    ]
+}

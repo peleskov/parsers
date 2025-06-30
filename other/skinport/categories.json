@@ -1,0 +1,107 @@
+[
+    {
+        "name": "CS2 Knife",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Knife",
+        "weight": 0.0044
+    },
+    {
+        "name": "CS2 Gloves",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Gloves",
+        "weight": 0.0016
+    },
+    {
+        "name": "CS2 Pistol",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Pistol",
+        "weight": 0.1063
+    },
+    {
+        "name": "CS2 Rifle",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Rifle",
+        "weight": 0.1235
+    },
+    {
+        "name": "CS2 SMG",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=SMG",
+        "weight": 0.096
+    },
+    {
+        "name": "CS2 Heavy",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Heavy",
+        "weight": 0.0571
+    },
+    {
+        "name": "CS2 Agent",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Agent",
+        "weight": 0.0034
+    },
+    {
+        "name": "CS2 Charm",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Charm",
+        "weight": 0.0051
+    },
+    {
+        "name": "CS2 Sticker",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Sticker",
+        "weight": 0.3188
+    },
+    {
+        "name": "CS2 Key",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Key",
+        "weight": 0.0017
+    },
+    {
+        "name": "CS2 Patch",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Patch",
+        "weight": 0.0021
+    },
+    {
+        "name": "CS2 Graffiti",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Graffiti",
+        "weight": 0.213
+    },
+    {
+        "name": "CS2 Collectible",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Collectible",
+        "weight": 0.001
+    },
+    {
+        "name": "CS2 Pass",
+        "url": "https:\/\/skinport.com\/api\/browse\/730?cat=Pass",
+        "weight": 0.0004
+    },
+    {
+        "name": "DOTA Wearable",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Wearable",
+        "weight": 0.051
+    },
+    {
+        "name": "DOTA Announcer",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Announcer",
+        "weight": 0.0004
+    },
+    {
+        "name": "DOTA Courier",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Courier",
+        "weight": 0.0003
+    },
+    {
+        "name": "DOTA Gem \/ Rune",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Gem+%2F+Rune",
+        "weight": 0.0002
+    },
+    {
+        "name": "DOTA HUD Skin",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=HUD+Skin",
+        "weight": 0.0002
+    },
+    {
+        "name": "DOTA Loading Screen",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Loading+Screen",
+        "weight": 0.0117
+    },
+    {
+        "name": "DOTA Bundle",
+        "url": "https:\/\/skinport.com\/api\/browse\/570?cat=Bundle",
+        "weight": 0.0018
+    }
+]

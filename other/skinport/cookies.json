@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Firefox",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
+        "cookies": "__cf_bm=wT4g6Co.SLo210Luxt7QHYM98_W7jLf.Jrj78Jtaeds-1751289226-1.0.1.1-gEJ4vEbt4aWyCfu4imtvp_fS5PBIKgUeOFIQ0AeFucdPnfmdSBXRz3KzMucXa7WFToxHtIOPxPJ3b0fjPg74k6MvK8MFXygLMyOWlZN8Hvs; i18n=ru; _csrf=UokW5LDV9oh7Dc1opKIsXu7A; cf_clearance=Cw0zUJOMRCAFtLsdgMDKSHw5OEyZTk8vZOD7jt6UT.g-1751289415-1.2.1.1-AVx1sT2qJVAd8pj1h1SWpOCHdRKSruzBfIA8YO4s9oxb6kpLtHTu9JpuPQ54IQXv5jXT1O34waSSYno2hpog9IXRPZyf0NX61dedktdjHf18htBQYId93ZfhBQnI7EK2v1kOeRBXtnWXET3ILHlySjKQuAmZ979r2fI82wBtN.AwtWTnDF_7IM2MoINDlyrZuI5D6_4J7VUFcCmPT9lcRT1iLyB5tPA410tHhI42TPOAcjMoP9KyRvtYFGVed7WrI7.plSSzwbbTRskx2zK60RUXccF19M2PfgZkm3Eh5qt9khnEwwZaq2ocZoymDqXj5v3__.xIxjuiz9Zw_aU_Au5jBpU91dCaCtqA5lsJVfU"
+    },
+    {
+        "name": "Chrome", 
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+        "cookies": "__cf_bm=NjVaVFkpBUeFdhwVgTctyMBrN0OrRh.wh5aEB0pUWbI-1751289101-1.0.1.1-TiDVDsqThtAfUW6gWd3JycqTTfBSnYukLU6SCLeDZHuACq7E9zbgibnZpQPreupgQjJqQ1AyMDjJaA8arQIDBFtFNzYVcUcvyCMogESv._8; i18n=ru; _csrf=jRJ78S0mpTREwEBlLuegd4JI; cf_clearance=H3YPqWXYBGFwcx94F31FArN.Lpxwakf4lracnzCpBw8-1751289102-1.2.1.1-SMT10lUEEn3croj.bzAbaHZY.WzBNyPoHog.kL4GaE109ji62fG9rfxi98d81pEjPYMDs4HDAUW6LpQnIKt9SuFnKCADP5V.4w3NwgiLUu5Xz0IcohBTGHOI7H4kplTFDj5B7TvcpxL6iHbNwyw1MWRbZ4rb8aL_LEY6JYmbqvl9m97Hwpw_zpDJfVoyhUJ9ncwt.qJQ7E6y2hagYsxatvOk8rcDj5ErC4SKZvP1WUSz0k2UsbZRF506MhDBYcuTLtbm5IQc0Mnq9iSkaW19cPuwuI3pePOq2OowdV9WnM0UM.CFnYLSEjZUTnUEhxP5ZNxezPm7YOxfPW94Up0.hTjb6RbwLh6CUuKVe1lqGrY"
+    },
+    {
+        "name": "Yandex",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 YaBrowser/25.6.0.0 Safari/537.36",
+        "cookies": "__cf_bm=VTwAB9JY49rSXzeppQesx9lG3NRrvauVweQdF2LAafA-1751289347-1.0.1.1-8LmmpMoSFD_JmtlrxRZZIG0qwIqaI7CK0gSYjM1nIrhppoSwflhP3t5tx2ZcaOmi0hnhArV_5RFNRzLXHlHyU.4HlxG0KF0vSFoOMOUJjB8; i18n=ru; _csrf=RWPbx8pAaOAK10gZsWLuF6oR; cf_clearance=4e6IZ255.oS2MrmKbSfsg1g1hTocQtN31oERxkYQQGQ-1751289348-1.2.1.1-GkB81ZMyjQBJmLvlS7QNeaFNjvxorIBt_TW1d5fau9dXSzj_Ft8yQwIyywXe7sp6Duf_fZd69NqE7w9WoMa26TMndYMrjaHkyuBBJxUyLFr4Btav73gEB9OR8NC8JS8h.miWHLS7XJX4.xlHAVFHnv879on_reaX28L7Cw.PXCdP1_v8GgqasGssfHbBqaIkDDm06uTdOkzbriibodvNjzQY3fvymhCZ4JC5gW760SY5GG.6PLN1I5HABcIwjLM3tmztXBfThMb.jxyRKhaTrl7waMnUcu9MYyExZBjMjIH4T0fdJqnpcOR5g1QAvIjX5oqt__duKzvrcFcHM9KOVPPH4RzvLv5p8r7G27YeeZI"
+    },
+    {
+        "name": "Edge",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+        "cookies": "__cf_bm=oQYYsiJ7y.P5GqPYNGgG7r5eYrNgnrQd75hsGJ584Ro-1751289512-1.0.1.1-SYP6lN03Cfz62aLznsZ6uDLVEQvVNEG1nOJEG46zlsXuvpj9GlQfoIkBPdHFButvL.GqoIRrgcVHQ8..mkcIIAUyoo5JDCJhjxMAnGLjWic; i18n=ru; _csrf=9nrghdCN4AIrFbLRq7KChh6W; cf_clearance=wVsuk2807JLktofKZDyLrfmOv7eM4xU2MqEw4Ff8wYc-1751289513-1.2.1.1-wcK__lewSWwZjJNX.XQNHzbhphzdSfv969VsIjMNTkCojKHyWcw9DNZewAJpyBcTkGmBAIk92euZUUb9WDJHvfANkvEbUS312nkp_sLGh5p7bq1JvKr5YY.r8woSj5dwkfcYtoAzknARp5aqO1w6xQJo36w6MyQ3U6sO9s9M22IsMDLIeOfgxi._2A4K13XYMA6cbyPiahwvHUXqVabJrCQ9V7tSqA2Iw5Y0EUNb0g09NfDxv_uRTPJ17dj6gJ2kH4UUhlz4p_wbD.Z76AlWFbFtNxr7UBwWocnlDSd_qKkZ2O1qxhpL9fE2XPNFlDTvUX24CCSI5FoUfzjfrXq8nKaVIZCeWWlE8gVEhrFekt0"
+    },
+    {
+        "name": "Opera",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0",
+        "cookies": "__cf_bm=EmXlgdqKfPjMnMVzBKoekBAQ3D4Tb1pbzQtO5MlSLP8-1751289574-1.0.1.1-1Elvm7Big5BR7N36NtbopRgZUW3PaSK10oYzfVfhvzofsVVYDgy0vEEX0q5MT9s52vQRf9e.i80rZFD4iZMDSNmVxcxiXwaRImtpV6MIkFA; i18n=ru; _csrf=e7poY80UJ5FuprLev70uMQqK; cf_clearance=l0fDYerlBJrySbb2buDVZQ_RC6AnDcKeOhwAno.mM.o-1751289575-1.2.1.1-rXjLay0VIRfHGo7_T.5ytYbiwgFewBi4t6FDxfe4UYbLt8VBsODXpPau3H2rn1ujZ_PSRSytjFeDabPEHCncn7L7ee74_FrlZGtJOcGbBvkNGr0afD34bG9rGsfhs2SwOpQTd8xjhT11eADzp8Yx9wqCoIWfdmhyzb.8VyoftGzXwMi_9TZ5PWHcuyryAWialJj5T_CleWDoKtRLeUOV.EPN5rJeOuO78kDcDBniYwC5NuKlxOZrR8z8jS3OjXCBqKDaSA7BS14N174mkYabmkDkY8yexvnSleDmDF73wyqNbMsSAy972RFAOMe2zq.aS7dg7ibu_4fgF41b9DdLZkACv4U_LbLwT.HCVC22G0s"
+    }
+]
