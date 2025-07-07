@@ -1,0 +1,110 @@
+{
+  "total_items": 16171,
+  "total_categories": 13,
+  "categories": [
+    {
+      "name": "velosipedy",
+      "url": "https://www.kant.ru/catalog/velosipedy/?filter:perPage=96",
+      "total_items": 2914,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:04",
+      "percent": 18.02
+    },
+    {
+      "name": "outdoor",
+      "url": "https://www.kant.ru/catalog/outdoor/?filter:perPage=96",
+      "total_items": 3571,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:07",
+      "percent": 22.08
+    },
+    {
+      "name": "mountaineering",
+      "url": "https://www.kant.ru/catalog/mountaineering/?filter:perPage=96",
+      "total_items": 824,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:10",
+      "percent": 5.1
+    },
+    {
+      "name": "bags-backpacks",
+      "url": "https://www.kant.ru/catalog/bags-backpacks/?filter:perPage=96",
+      "total_items": 1853,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:14",
+      "percent": 11.46
+    },
+    {
+      "name": "eyewear-helmet-protector",
+      "url": "https://www.kant.ru/catalog/eyewear-helmet-protector/?filter:perPage=96",
+      "total_items": 2312,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:17",
+      "percent": 14.3
+    },
+    {
+      "name": "samokaty",
+      "url": "https://www.kant.ru/catalog/samokaty/?filter:perPage=96",
+      "total_items": 359,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:21",
+      "percent": 2.22
+    },
+    {
+      "name": "roller-blades",
+      "url": "https://www.kant.ru/catalog/roller-blades/?filter:perPage=96",
+      "total_items": 178,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:24",
+      "percent": 1.1
+    },
+    {
+      "name": "skateboards-longboards",
+      "url": "https://www.kant.ru/catalog/skateboards-longboards/?filter:perPage=96",
+      "total_items": 173,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:28",
+      "percent": 1.07
+    },
+    {
+      "name": "plavanie",
+      "url": "https://www.kant.ru/catalog/plavanie/?filter:perPage=96",
+      "total_items": 612,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:31",
+      "percent": 3.78
+    },
+    {
+      "name": "lyzherollery",
+      "url": "https://www.kant.ru/catalog/lyzherollery/?filter:perPage=96",
+      "total_items": 37,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:34",
+      "percent": 0.23
+    },
+    {
+      "name": "accessories-list",
+      "url": "https://www.kant.ru/catalog/accessories-list/?filter:perPage=96",
+      "total_items": 361,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:40",
+      "percent": 2.23
+    },
+    {
+      "name": "snowboards",
+      "url": "https://www.kant.ru/catalog/snowboards/?filter:perPage=96",
+      "total_items": 2365,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:43",
+      "percent": 14.62
+    },
+    {
+      "name": "skis",
+      "url": "https://www.kant.ru/catalog/skis/?filter:perPage=96",
+      "total_items": 612,
+      "total_pages": 0,
+      "check_time": "2025-07-07 12:52:49",
+      "percent": 3.78
+    }
+  ]
+}

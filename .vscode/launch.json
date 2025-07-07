@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: kant_ru",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/other/kant_ru.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/other"
+    }
+  ]
+}
