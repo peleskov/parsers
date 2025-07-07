@@ -12,10 +12,10 @@ from urllib.parse import urljoin
 
 IN_DATA = {
     'name': 'kant_ru',
-    'folder': 'velosipedy',
+    'folder': 'bags-backpacks',
     'host': 'https://www.kant.ru/',
-    'target_url': 'https://www.kant.ru/catalog/velosipedy/?filter:perPage=96',
-    'qty_items': 1152,
+    'target_url': 'https://www.kant.ru/catalog/bags-backpacks/?filter:perPage=96',
+    'qty_items': 690,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
 PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
