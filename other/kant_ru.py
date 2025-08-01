@@ -12,14 +12,78 @@ from urllib.parse import urljoin
 
 IN_DATA = {
     'name': 'kant_ru',
-    'folder': 'bags-backpacks',
     'host': 'https://www.kant.ru/',
-    'target_url': 'https://www.kant.ru/catalog/bags-backpacks/?filter:perPage=96',
-    'qty_items': 690,
+    'target_urls': [
+        {
+            'name': 'velosipedy',
+            'target_url': 'https://www.kant.ru/catalog/velosipedy/?filter:perPage=96',
+            'qty_items': 1344,
+        },
+        {
+            'name': 'outdoor',
+            'target_url': 'https://www.kant.ru/catalog/outdoor/?filter:perPage=96',
+            'qty_items': 1536,
+        },
+        {
+            'name': 'mountaineering',
+            'target_url': 'https://www.kant.ru/catalog/mountaineering/?filter:perPage=96',
+            'qty_items': 384,
+        },
+        {
+            'name': 'bags-backpacks',
+            'target_url': 'https://www.kant.ru/catalog/bags-backpacks/?filter:perPage=96',
+            'qty_items': 864,
+        },
+        {
+            'name': 'eyewear-helmet-protector',
+            'target_url': 'https://www.kant.ru/catalog/eyewear-helmet-protector/?filter:perPage=96',
+            'qty_items': 1056,
+        },
+        {
+            'name': 'samokaty',
+            'target_url': 'https://www.kant.ru/catalog/samokaty/?filter:perPage=96',
+            'qty_items': 192,
+        },
+        {
+            'name': 'roller-blades',
+            'target_url': 'https://www.kant.ru/catalog/roller-blades/?filter:perPage=96',
+            'qty_items': 96,
+        },
+        {
+            'name': 'skateboards-longboards',
+            'target_url': 'https://www.kant.ru/catalog/skateboards-longboards/?filter:perPage=96',
+            'qty_items': 96,
+        },
+        {
+            'name': 'plavanie',
+            'target_url': 'https://www.kant.ru/catalog/plavanie/?filter:perPage=96',
+            'qty_items': 288,
+        },
+        {
+            'name': 'lyzherollery',
+            'target_url': 'https://www.kant.ru/catalog/lyzherollery/?filter:perPage=96',
+            'qty_items': 96,
+        },
+        {
+            'name': 'accessories-list',
+            'target_url': 'https://www.kant.ru/catalog/accessories-list/?filter:perPage=96',
+            'qty_items': 192,
+        },
+        {
+            'name': 'snowboards',
+            'target_url': 'https://www.kant.ru/catalog/snowboards/?filter:perPage=96',
+            'qty_items': 1056,
+        },
+        {
+            'name': 'skis',
+            'target_url': 'https://www.kant.ru/catalog/skis/?filter:perPage=96',
+            'qty_items': 288,
+        }
+    ],
 }
-PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
-PATH_IMAGES = os.path.join(PATH_ROOT, 'images')
-PATH_LOGS = os.path.join(PATH_ROOT, 'logs')
+
+# Флаг для управления скачиванием картинок
+DOWNLOAD_IMAGES = False
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
     'accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -28,12 +92,12 @@ HEADERS = {
 }
 
 # Настройка логирования
-if not os.path.exists(PATH_ROOT):
-    os.makedirs(PATH_ROOT)
-if not os.path.exists(PATH_LOGS):
-    os.makedirs(PATH_LOGS)
+# Создаем общую папку для логов
+logs_path = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), 'logs')
+if not os.path.exists(logs_path):
+    os.makedirs(logs_path)
 
-log_filename = os.path.join(PATH_LOGS, f'kant_ru_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+log_filename = os.path.join(logs_path, f'kant_ru_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -44,8 +108,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-logger.info(f'Каталог: {IN_DATA["folder"]}')
-print(f'Каталог: {IN_DATA["folder"]}')
+logger.info(f'Сайт: {IN_DATA["name"]}')
+logger.info(f'Скачивание картинок: {"включено" if DOWNLOAD_IMAGES else "выключено"}')
+print(f'Сайт: {IN_DATA["name"]}')
+print(f'Скачивание картинок: {"включено" if DOWNLOAD_IMAGES else "выключено"}')
 
 def handle_captcha_if_needed(session, response, url):
     """Обрабатывает CAPTCHA если она есть на странице"""
@@ -151,26 +217,48 @@ def handle_captcha_if_needed(session, response, url):
     return response
 
 def get_items():
-    # создаем каталог для этого сайта, если его нет
-    if not os.path.exists(PATH_ROOT):
-        os.makedirs(PATH_ROOT)
-    path_results = os.path.join(PATH_ROOT, f'results_{IN_DATA["name"].replace(".", "_")}.json')
+    # Обрабатываем все категории из target_urls
+    for category_index, category_data in enumerate(IN_DATA['target_urls'], 1):
+        target_url = category_data['target_url']
+        qty_items = category_data['qty_items']
+        category_name = category_data.get('name', f"category_{category_index}")
+        
+        logger.info(f'Обрабатываем категорию {category_index}/{len(IN_DATA["target_urls"])}: {category_name} ({target_url})')
+        
+        # Создаем отдельную папку для каждой категории
+        category_path = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), category_name)
+        if not os.path.exists(category_path):
+            os.makedirs(category_path)
+        
+        # Создаем каталог для изображений если его нет и скачивание включено
+        category_images_path = os.path.join(category_path, 'images')
+        if DOWNLOAD_IMAGES and not os.path.exists(category_images_path):
+            os.makedirs(category_images_path)
+        
+        # Создаем каталог для логов
+        category_logs_path = os.path.join(category_path, 'logs')
+        if not os.path.exists(category_logs_path):
+            os.makedirs(category_logs_path)
+        
+        # Путь для файла результатов в папке категории
+        path_results = os.path.join(category_path, f'results_{IN_DATA["name"].replace(".", "_")}_{category_name}.json')
+        
+        # Соберем ссылки со всех страниц через requests
+        items_list = get_links_with_requests(target_url, qty_items)
+        
+        if not items_list:
+            logger.warning(f'Not found links for category {category_name}')
+            continue
+        logger.info(f'Найдено {len(items_list)} ссылок на товары в категории {category_name}. Собираем инфо по каждому товару...')
 
-    # Создаем каталог для изображений если его нет
-    if not os.path.exists(PATH_IMAGES):
-        os.makedirs(PATH_IMAGES)
-
-    # Соберем ссылки со всех страниц через requests
-    items_list = get_links_with_requests()
+        time.sleep(random.randint(1, 5))
+        # Соберем данные
+        get_data_with_requests(items_list, path_results, category_images_path)
+        
+        # Пауза между категориями
+        if category_index < len(IN_DATA['target_urls']):
+            time.sleep(random.randint(3, 7))
     
-    if not items_list:
-        logger.warning('Not found links')
-        return True
-    logger.info(f'Найдено {len(items_list)} ссылок на товары. Собираем инфо по каждому товару...')
-
-    time.sleep(random.randint(1, 5))
-    # Соберем данные
-    get_data_with_requests(items_list, path_results)
     return True
 
 def load_existing_results(path_results):
@@ -190,12 +278,20 @@ def load_existing_results(path_results):
             logger.warning(f"Ошибка загрузки существующих результатов: {e}")
     return existing_urls
 
-def download_images(images_urls, item_id, session, first_image_url=None):
+def download_images(images_urls, item_id, session, first_image_url=None, images_path=None):
     """Скачивает картинки товара с проверкой на существование"""
     downloaded_images = []
     
+    # Если скачивание картинок отключено, возвращаем пустой список
+    if not DOWNLOAD_IMAGES:
+        return downloaded_images
+    
     if not images_urls:
         return downloaded_images
+    
+    # Используем переданный путь для изображений
+    if images_path is None:
+        raise ValueError("images_path is required")
     
     # Убираем дубли
     images_urls = list(set(images_urls))
@@ -221,7 +317,7 @@ def download_images(images_urls, item_id, session, first_image_url=None):
                 ext = 'jpg'
             
             image_name = f'{item_id}_{k}.{ext}'
-            image_path = os.path.join(PATH_IMAGES, image_name)
+            image_path = os.path.join(images_path, image_name)
             
             # Проверяем существует ли файл
             if os.path.exists(image_path):
@@ -250,7 +346,7 @@ def save_item_to_file(item_data, path_results):
         f.write('\n')
     
 
-def get_data_with_requests(items, path_results) -> bool:
+def get_data_with_requests(items, path_results, category_images_path) -> bool:
     """Собирает данные о товарах через requests"""
     session = requests.Session()
     session.headers.update(HEADERS)
@@ -260,10 +356,10 @@ def get_data_with_requests(items, path_results) -> bool:
     
     flag_try = 0
     row_count = 0
-    total_items = len(items[:IN_DATA['qty_items']])
+    total_items = len(items)
     processed_count = 0
     
-    for item in items[:IN_DATA['qty_items']]:
+    for item in items:
         try:
             flag_try = 0
             processed_count += 1
@@ -275,9 +371,27 @@ def get_data_with_requests(items, path_results) -> bool:
             
             logger.info(f"Обрабатываем товар {processed_count}/{total_items}: {item['link']}")
             
-            # получаем каждую страницу через requests
-            response = session.get(item['link'], timeout=30, allow_redirects=True)
+            # получаем каждую страницу через requests с повторами
+            max_retries = 3
+            retry_count = 0
+            response = None
             
+            while retry_count < max_retries:
+                try:
+                    response = session.get(item['link'], timeout=30, allow_redirects=True)
+                    break
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    retry_count += 1
+                    logger.warning(f"Ошибка подключения (попытка {retry_count}/{max_retries}): {e}")
+                    if retry_count < max_retries:
+                        time.sleep(random.randint(5, 10))
+                    else:
+                        logger.error(f"Не удалось загрузить страницу после {max_retries} попыток: {item['link']}")
+                        continue
+            
+            if not response:
+                continue
+                
             # Обрабатываем CAPTCHA если нужно
             response = handle_captcha_if_needed(session, response, item['link'])
             if not response:
@@ -428,7 +542,7 @@ def get_data_with_requests(items, path_results) -> bool:
                 item_id = hashlib.sha256(f"{item_title}{item_brand}{item_price}{item['link']}".encode("utf-8")).hexdigest()
                 
                 # Скачиваем картинки
-                downloaded_images = download_images(images_urls, item_id, session, item.get('first_image'))
+                downloaded_images = download_images(images_urls, item_id, session, item.get('first_image'), category_images_path)
                 
             except Exception as ex:
                 logger.error(f"Ошибка при парсинге JSON данных: {ex}")
@@ -459,12 +573,12 @@ def get_data_with_requests(items, path_results) -> bool:
             logger.error(f'Ошибка: {ex}')
             time.sleep(random.randint(1, 5))
             continue
-        time.sleep(random.randint(1, 3))
+        time.sleep(random.randint(2, 5))
     
     logger.info(f'Собрано информации по {row_count} товаров.')
     return True
 
-def get_links_with_requests() -> list:
+def get_links_with_requests(target_url, qty_items) -> list:
     """Получает ссылки на товары через requests"""
     items = []
     page_n = 1
@@ -475,21 +589,39 @@ def get_links_with_requests() -> list:
     session.headers.update(HEADERS)
     
     while True:
-        if len(items) >= IN_DATA['qty_items']:
+        if len(items) >= qty_items:
             break
         
         # Формируем URL с номером страницы
         if page_n > 1:
-            current_url = f"{IN_DATA['target_url']}&page={page_n}"
+            current_url = f"{target_url}&page={page_n}"
         else:
-            current_url = IN_DATA['target_url']
+            current_url = target_url
         
         logger.info(f"Обрабатываем страницу {page_n}: {current_url}")
         
         try:
-            # Получаем страницу
-            response = session.get(current_url, timeout=30, allow_redirects=True)
+            # Получаем страницу с повторами
+            max_retries = 3
+            retry_count = 0
+            response = None
             
+            while retry_count < max_retries:
+                try:
+                    response = session.get(current_url, timeout=30, allow_redirects=True)
+                    break
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                    retry_count += 1
+                    logger.warning(f"Ошибка подключения к странице {page_n} (попытка {retry_count}/{max_retries}): {e}")
+                    if retry_count < max_retries:
+                        time.sleep(random.randint(5, 10))
+                    else:
+                        logger.error(f"Не удалось загрузить страницу {page_n} после {max_retries} попыток")
+                        break
+            
+            if not response:
+                break
+                
             # Обрабатываем CAPTCHA если нужно
             response = handle_captcha_if_needed(session, response, current_url)
             if not response:
@@ -575,4 +707,4 @@ def get_links_with_requests() -> list:
 
 if __name__ == '__main__':
     get_items()
-    logger.info(f'Каталог: {IN_DATA["folder"]}')
+    logger.info(f'Сайт: {IN_DATA["name"]}')

@@ -5,3 +5,5 @@ TZ.txt
 *.xml
 *.xlsx
 *.iml
+other/captcha_image.png
+other/captcha_page.html

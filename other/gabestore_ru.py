@@ -1,5 +1,4 @@
 import json
-import winsound
 import csv
 import hashlib
 import os
@@ -8,12 +7,12 @@ import time
 import requests
 import re
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 from transliterate import translit
 
 IN_DATA = {
@@ -21,7 +20,7 @@ IN_DATA = {
     'folder': 'games',
     'host': 'https://gabestore.ru/',
     'target_url': 'https://gabestore.ru/search/next?series=&ProductFilter%5BsortName%5D=views&ProductFilter%5BpriceTo%5D=0&ProductFilter%5Bavailable%5D=0&ProductFilter%5Bavailable%5D=1',
-    'qty_items': 1000,
+    'qty_items': 10000,
 }
 PATH_ROOT = os.path.join('..', '_sites', IN_DATA["name"].replace(".", "_"), IN_DATA["folder"])
 PATH_DRIVER = os.path.join('../clothes/chromedriver.exe')
@@ -36,14 +35,14 @@ HEADERS = {
 
 
 def get_items():
-    # Запускаем сервис Chrome
-    service = Service('../chromedriver-win64/chromedriver.exe')
+    # Используем webdriver-manager для автоматического управления драйвером Firefox
+    service = Service(GeckoDriverManager().install())
 
     options = Options()
-    options.add_argument('headless')  # Скроем окно браузера
-    # options.add_experimental_option( "prefs",{'profile.managed_default_content_settings.javascript': 2}) # Отключаем JavsScript
+    options.add_argument('--headless')  # Скроем окно браузера
+    # options.set_preference('javascript.enabled', False)  # Отключаем JavaScript если нужно
 
-    with webdriver.Chrome(service=service, options=options) as driver:
+    with webdriver.Firefox(service=service, options=options) as driver:
         # driver.maximize_window()
 
         try:
@@ -58,21 +57,27 @@ def get_items():
         # создаем каталог для этого сайта, если его нет
         if not os.path.exists(PATH_ROOT):
             os.makedirs(PATH_ROOT)
-        path_results = os.path.join(PATH_ROOT, f'results_{IN_DATA["name"].replace(".", "_")}.csv')
-        # Создаем csv файл для загрузки данных в базу, и пишем в него первую строку с обозначением колонок
-        with open(path_results, 'w', newline="", encoding='UTF8') as f:
-            f.write('id,title,price,old_price,params,desc,require,image,screenshots,videos,\n')
+        path_results = os.path.join(PATH_ROOT, f'results_{IN_DATA["name"].replace(".", "_")}.jsonl')
+        # Создаем JSONL файл для записи данных (JSON Lines - каждая строка отдельный JSON объект)
+        print(f'Результаты будут записаны в: {path_results}')
 
         # Создаем каталог для изображений если его нет
         if not os.path.exists(PATH_IMAGES):
             os.makedirs(PATH_IMAGES)
 
-        # Соберем ссылки со всех страниц, ограничение по количеству IN_DATA['qty_items']
-        items_list = get_links(driver)
-        if not items_list:
-            print('Not found links')
+        # Читаем ссылки из файла и фильтруем уже обработанные
+        all_links = read_links_from_file()
+        if not all_links:
+            print('Не найдено ссылок в файле')
             return True
-        print(f'Найдено {len(items_list)} ссылок на товары. Собираем инфо по каждому товару...')
+        
+        # Получаем список уже обработанных ссылок
+        processed_links = get_processed_links(path_results)
+        print(f'Уже обработано товаров: {len(processed_links)}')
+        
+        # Фильтруем только новые ссылки
+        items_list = [item for item in all_links if item['link'] not in processed_links]
+        print(f'Загружено {len(all_links)} ссылок из файла, новых для обработки: {len(items_list)}')
 
         time.sleep(random.randint(1, 5))
 
@@ -81,17 +86,59 @@ def get_items():
     return True
 
 
+def check_page_availability(driver, url, max_retries=3) -> bool:
+    """Проверяет доступность страницы с повторными попытками"""
+    retry_delays = [5*60, 10*60, 30*60]  # 5, 10, 30 минут в секундах
+    
+    for attempt in range(max_retries):
+        try:
+            driver.get(url)
+            # Проверяем статус через JavaScript
+            status_code = driver.execute_script("return document.readyState === 'complete' ? 200 : 0")
+            
+            # Проверяем наличие ожидаемого контента (заголовок h1)
+            try:
+                WebDriverWait(driver, 10).until(lambda d: d.find_element(By.TAG_NAME, 'h1'))
+                print(f"Страница доступна: {url}")
+                return True
+            except:
+                print(f"Ожидаемый контент не найден на странице: {url}")
+                
+        except Exception as ex:
+            print(f"Ошибка при загрузке страницы (попытка {attempt + 1}): {ex}")
+        
+        if attempt < max_retries - 1:
+            delay_minutes = retry_delays[attempt] // 60
+            print(f"Ожидание {delay_minutes} минут перед следующей попыткой...")
+            time.sleep(retry_delays[attempt])
+    
+    print(f"Страница недоступна после {max_retries} попыток: {url}")
+    return False
+
+
 def get_data(driver, items, path_results) -> bool:
     for item in items[:IN_DATA['qty_items']]:
         try:
+            # Проверяем доступность страницы с повторными попытками
+            url = f'{IN_DATA["host"][:-1]}{item["link"]}'
+            if not check_page_availability(driver, url):
+                print(f"Пропускаем товар из-за недоступности страницы: {item['link']}")
+                continue
+            
             # получаем каждую старницу и собираем данные
-            driver.get(f'{IN_DATA["host"][:-1]}{item["link"]}')
-            WebDriverWait(driver, 20).until(lambda d: d.find_element(By.TAG_NAME, 'h1'))
             item_title = driver.find_element(By.TAG_NAME, 'h1').text.replace('купить ', '').replace('КУПИТЬ ', '')
+            
+            # Цена всегда должна быть
             item_price = driver.find_element(By.CLASS_NAME, 'b-card__price-currentprice').text
             item_price = re.sub(r"[^\d.]", "", item_price)
-            item_old_price = driver.find_element(By.CLASS_NAME, 'b-card__price-oldprice').text
-            item_old_price = re.sub(r"[^\d.]", "", item_old_price)
+            
+            # Старая цена может отсутствовать (если нет скидки)
+            item_old_price = ''
+            try:
+                item_old_price = driver.find_element(By.CLASS_NAME, 'b-card__price-oldprice').text
+                item_old_price = re.sub(r"[^\d.]", "", item_old_price)
+            except:
+                pass
             item_params = {}
             try:
                 prms = driver.find_elements(By.XPATH, '//div[@class="b-card__table"]//div[@class="b-card__table-item"]')
@@ -191,22 +238,25 @@ def get_data(driver, items, path_results) -> bool:
 
             except Exception as ex:
                 pass
-            item_videos = json.dumps(item_videos, ensure_ascii=False)
-            # пишем строку с товаром в csv файл
-            with open(path_results, 'a', newline="", encoding='UTF8') as f:
-                writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_MINIMAL)
-                writer.writerow([
-                    item_id,
-                    item_title,
-                    item_price,
-                    item_old_price,
-                    item_params,
-                    item_desc,
-                    item_require,
-                    item_image,
-                    item_screenshots,
-                    item_videos,
-                ])
+            # Создаем JSON объект с данными товара
+            item_data = {
+                'id': item_id,
+                'title': item_title,
+                'price': item_price,
+                'old_price': item_old_price,
+                'params': json.loads(item_params) if item_params else {},
+                'desc': item_desc,
+                'require': item_require,
+                'image': item_image,
+                'screenshots': json.loads(item_screenshots) if item_screenshots else [],
+                'videos': item_videos,
+                'link': item['link'],
+                'collected_at': time.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            # Записываем JSON объект в файл (одна строка = один товар)
+            with open(path_results, 'a', encoding='UTF8') as f:
+                f.write(json.dumps(item_data, ensure_ascii=False) + '\n')
 
         except Exception as ex:
             print(ex)
@@ -216,39 +266,66 @@ def get_data(driver, items, path_results) -> bool:
     return True
 
 
-def get_links(driver) -> list:
-    items = []
-    page = 1
-    link = f'{IN_DATA["target_url"]}&page={page}'
-    while True:
-        page += 1
-        response = requests.get(link)
-        if response.status_code == 200:
-            data = response.json()
-        else:
-            break
-        html_content = data.get("html", "")
-        if not html_content:
-            break
-        soup = BeautifulSoup(html_content, 'html.parser')
-        elements = soup.find_all('div', class_='shop-item')
+def get_processed_links(results_file) -> set:
+    """Читает уже обработанные ссылки из JSONL файла"""
+    if not os.path.exists(results_file):
+        return set()
+    
+    processed = set()
+    try:
+        with open(results_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        data = json.loads(line)
+                        if 'link' in data:
+                            processed.add(data['link'])
+                    except json.JSONDecodeError:
+                        continue
+        
+        print(f'Найдено уже обработанных товаров в файле: {len(processed)}')
+        return processed
+        
+    except Exception as e:
+        print(f'Ошибка чтения файла результатов: {e}')
+        return set()
 
-        for element in elements:
-            name_tag = element.find('a', class_='shop-item__name')
-            if not name_tag or not name_tag['href']:
-                continue
-            else:
-                items.append(
-                    {
-                        'link': name_tag['href'],
-                    })
-        if len(items) >= IN_DATA['qty_items']:
-            break
-        link = f'{IN_DATA["target_url"]}&page={page}'
-        time.sleep(random.randint(1, 3))
-    return items
+
+def read_links_from_file() -> list:
+    """Читает ссылки из файла game_links.txt"""
+    links_file = os.path.join('..', '_sites', 'gabestore', 'game_links.txt')
+    
+    if not os.path.exists(links_file):
+        print(f'Файл со ссылками не найден: {links_file}')
+        return []
+    
+    items = []
+    try:
+        with open(links_file, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                link = line.strip()
+                if link:
+                    # Ссылки в файле относительные, добавляем полный путь
+                    if not link.startswith('http'):
+                        if not link.startswith('/'):
+                            link = '/' + link
+                    
+                    items.append({'link': link})
+                    
+                    # Ограничиваем количество согласно настройкам
+                    if len(items) >= IN_DATA['qty_items']:
+                        break
+        
+        print(f'Прочитано ссылок из файла: {len(items)}')
+        return items
+        
+    except Exception as e:
+        print(f'Ошибка чтения файла со ссылками: {e}')
+        return []
+
+
 
 
 if __name__ == '__main__':
     get_items()
-    winsound.Beep(500, 1000)
